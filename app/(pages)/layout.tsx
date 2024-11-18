@@ -17,11 +17,8 @@ export default function Layout({
         <Box
           sx={{
             flex: 1, // Fills available space
-            
             display: "flex",
-            justifyContent: "center",
             minHeight: "100vh",
-            alignItems: "center",
           }}
         >
           {children}
