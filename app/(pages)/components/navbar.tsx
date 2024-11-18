@@ -83,7 +83,7 @@ export default function Navbar() {
       </Box>
       <Box
         sx={{
-          width: {xs:"100%",md:"50%"},
+          width: { xs: "100%", md: "50%" },
           display: { xs: "center", md: "flex" },
           flexDirection: "row",
           justifyContent: "center",
@@ -96,8 +96,8 @@ export default function Navbar() {
               gap: "2rem", // spacing between buttons
             }}
           >
-            <CustomButton href="/dashboard">Home</CustomButton>
-            <CustomButton href="/lost">Lost</CustomButton>
+            <CustomButton href="/search">Lost </CustomButton>
+            <CustomButton href="/dashboard">and</CustomButton>
             <CustomButton href="/found">Found</CustomButton>
           </ButtonGroup>
         </Box>
