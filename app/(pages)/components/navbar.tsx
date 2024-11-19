@@ -96,7 +96,7 @@ export default function Navbar() {
               gap: "2rem", // spacing between buttons
             }}
           >
-            <CustomButton href="/search">Lost </CustomButton>
+            <CustomButton href="/found">Lost </CustomButton>
             <CustomButton href="/dashboard">and</CustomButton>
             <CustomButton href="/found">Found</CustomButton>
           </ButtonGroup>

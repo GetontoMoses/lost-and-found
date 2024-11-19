@@ -1,26 +1,36 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 
 export default function Found() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true); // Set to true after component has mounted
+  }, []);
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(`/api/search`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: searchQuery }),
+      const response = await fetch(`/api/items/search?search=${searchQuery}`, {
+        method: "GET",
       });
       const data = await response.json();
-      console.log("Search Results:", data); // Handle the results here
+      if (data.items) {
+        window.location.href = `/search?items=${JSON.stringify(data.items)}`;
+      } else {
+        console.log("No items found");
+      }
     } catch (error) {
       console.error("Error searching items:", error);
     }
   };
-
+  if (!isMounted) {
+    return null;
+  }
   return (
     <Box
       sx={{
