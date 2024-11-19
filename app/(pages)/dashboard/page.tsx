@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import EastIcon from "@mui/icons-material/East";
 
-export default function Dashboard() {
+export default async function Dashboard() {
   return (
     <Box
       sx={{
