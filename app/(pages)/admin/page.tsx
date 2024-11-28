@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSX } from "react";
 import {
   Box,
   Button,
@@ -110,6 +110,12 @@ const AdminPage = () => {
 
   // Delete an item
   const handleDeleteItem = async (id: string) => {
+    console.log("Deleting item with ID:", id); // Debugging log
+    if (!id) {
+      alert("Item ID is missing");
+      return;
+    }
+
     const response = await fetch(`/api/items/${id}/delete`, {
       method: "DELETE",
     });
@@ -191,7 +197,9 @@ const AdminPage = () => {
                     dateLost: date?.format("YYYY-MM-DD") || "",
                   })
                 }
-                renderInput={(params) => <TextField fullWidth {...params} />}
+                TextFieldComponent={(params) => (
+                  <TextField fullWidth {...params} />
+                )}
               />
             </LocalizationProvider>
           </Grid>
@@ -232,49 +240,23 @@ const AdminPage = () => {
                 <Typography variant="caption">
                   Location: {item.location}
                 </Typography>
-                <Typography
-                  variant="caption"
-                  display="block"
-                  color={item.claimed ? "green" : "red"}
-                >
-                  {item.claimed ? "Claimed" : "Unclaimed"}
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleMarkAsClaimed(item.id)}
-                  sx={{ marginTop: "10px", marginRight: "10px" }}
-                >
-                  Mark as Claimed
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => handleDeleteItem(item.id)}
-                  sx={{ marginTop: "10px" }}
-                >
-                  Delete
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Claimed Items */}
-      <Typography variant="h5" gutterBottom sx={{ marginTop: "30px" }}>
-        Claimed Items
-      </Typography>
-      <Grid container spacing={2}>
-        {claimedItems.map((item) => (
-          <Grid item xs={12} sm={6} md={4} key={item.id}>
-            <Card sx={{ bgcolor: "#E6F7F5", borderRadius: "8px" }}>
-              <CardContent>
-                <Typography variant="h6">{item.name}</Typography>
-                <Typography variant="body2">{item.description}</Typography>
-                <Typography variant="caption">
-                  Claimed at: {new Date().toLocaleDateString()}
-                </Typography>
+                <Box sx={{ marginTop: "10px" }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleMarkAsClaimed(item.id)}
+                  >
+                    Mark as Claimed
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => handleDeleteItem(item.id)}
+                    sx={{ marginLeft: "10px" }}
+                  >
+                    Delete
+                  </Button>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
