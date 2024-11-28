@@ -83,7 +83,7 @@ export default function Navbar() {
       </Box>
       <Box
         sx={{
-          width: { xs: "100%", md: "50%" },
+          width: { xs: "100%", md: "60%" },
           display: { xs: "center", md: "flex" },
           flexDirection: "row",
           justifyContent: "center",
@@ -102,18 +102,7 @@ export default function Navbar() {
           </ButtonGroup>
         </Box>
       </Box>
-      <Box
-        sx={{
-          width: "30%",
-          display: { xs: "none", md: "flex" },
-          flexDirection: "row",
-          justifyContent: "flex-end",
-          alignItems: "center",
-        }}
-      >
-        <CustomButton href="/auth/signin">Login</CustomButton>
-        <CustomButton href="/auth/signup">Signup</CustomButton>
-      </Box>
+     
     </Box>
   );
 }

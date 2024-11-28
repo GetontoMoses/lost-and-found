@@ -39,12 +39,13 @@ const SearchResults: React.FC = () => {
 
   const handleClaimItem = (itemId: string) => {
     // Redirect to a claim page with the item ID
-    window.location.href = `/claim-item/${itemId}`;
+    window.location.href = `/claim/${itemId}`;
   };
 
   return (
     <Box
       sx={{
+        bgcolor: "#fff",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -58,7 +59,7 @@ const SearchResults: React.FC = () => {
       ) : (
         <Box
           sx={{
-            bgcolor: "blue",
+            bgcolor: "#EDEADE",
             display: "flex",
             flexDirection: "column",
             height: "100%",

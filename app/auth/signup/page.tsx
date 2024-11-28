@@ -15,7 +15,6 @@ import AppTheme from "@/app/shared-theme/AppTheme";
 import CssBaseline from "@mui/material/CssBaseline";
 import ColorModeSelect from "@/app/shared-theme/ColorModeSelect";
 
-
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -63,12 +62,20 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-
+  const [confirmPasswordError, setConfirmPasswordError] = React.useState(false);
+  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] =
+    React.useState("");
+  const [message, setMessage] = React.useState("");
+  const [messageSeverity, setMessageSeverity] = React.useState<
+    "success" | "error"
+  >();
 
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
-    const name = document.getElementById("name") as HTMLInputElement;
+    const confirmPassword = document.getElementById(
+      "confirmPassword"
+    ) as HTMLInputElement;
 
     let isValid = true;
 
@@ -90,20 +97,59 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       setPasswordErrorMessage("");
     }
 
-   
+    if (confirmPassword.value !== password.value) {
+      setConfirmPasswordError(true);
+      setConfirmPasswordErrorMessage("Passwords do not match.");
+      isValid = false;
+    } else {
+      setConfirmPasswordError(false);
+      setConfirmPasswordErrorMessage("");
+    }
+
     return isValid;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if ( emailError || passwordError) {
-      event.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!validateInputs()) {
       return;
     }
+
     const data = new FormData(event.currentTarget);
-    console.log({
+    const userDetails = {
       email: data.get("email"),
       password: data.get("password"),
-    });
+    };
+
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userDetails),
+      });
+
+      if (response.ok) {
+        setMessage("Account created successfully!");
+        setMessageSeverity("success");
+        setTimeout(() => {
+          window.location.href = "/dashboard"; // Redirect to dashboard
+        }, 500);
+      } else if (response.status === 409) {
+        setMessage("User already exists.");
+        setMessageSeverity("error");
+      } else {
+        const errorData = await response.json();
+        const errorMessage =
+          errorData?.message || "An error occurred. Please try again.";
+        setMessage(errorMessage);
+        setMessageSeverity("error");
+      }
+    } catch (error) {
+      console.error("Error creating account:", error);
+      setMessage("Network error. Please try again later.");
+      setMessageSeverity("error");
+    }
   };
 
   return (
@@ -140,7 +186,6 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                 variant="outlined"
                 error={emailError}
                 helperText={emailErrorMessage}
-                color={passwordError ? "error" : "primary"}
               />
             </FormControl>
             <FormControl>
@@ -156,37 +201,40 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                 variant="outlined"
                 error={passwordError}
                 helperText={passwordErrorMessage}
-                color={passwordError ? "error" : "primary"}
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="password">Confirm Password</FormLabel>
+              <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
               <TextField
                 required
                 fullWidth
-                name="password"
+                name="confirmPassword"
                 placeholder="•••••••••"
                 type="password"
-                id="password"
+                id="confirmPassword"
                 autoComplete="new-password"
                 variant="outlined"
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? "error" : "primary"}
+                error={confirmPasswordError}
+                helperText={confirmPasswordErrorMessage}
               />
             </FormControl>
-
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
               sx={{ top: ".5em" }}
             >
               Sign up
             </Button>
           </Box>
-
+          {message && (
+            <Typography
+              variant="body2"
+              sx={{ color: messageSeverity === "error" ? "red" : "green" }}
+            >
+              {message}
+            </Typography>
+          )}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography sx={{ textAlign: "center" }}>
               Already have an account?{" "}

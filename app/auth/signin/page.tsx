@@ -10,9 +10,11 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
+
 import AppTheme from "@/app/shared-theme/AppTheme";
 import CssBaseline from "@mui/material/CssBaseline";
 import ColorModeSelect from "@/app/shared-theme/ColorModeSelect";
+import Alert from "@mui/material/Alert";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -31,6 +33,13 @@ const Card = styled(MuiCard)(({ theme }) => ({
     boxShadow:
       "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
   }),
+}));
+
+const Logo = styled("img")(() => ({
+  width: "100px",
+  height: "100px",
+  borderRadius: "50%",
+  alignSelf: "center",
 }));
 
 const SignUpContainer = styled(Stack)(({ theme }) => ({
@@ -61,6 +70,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
+  const [serverErrorMessage, setServerErrorMessage] = React.useState("");
+  const [serverError, setServerError] = React.useState(false);
 
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
@@ -89,17 +100,46 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
     return isValid;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!validateInputs()) {
       return;
     }
+
     const data = new FormData(event.currentTarget);
-    console.log({
-      lastName: data.get("lastName"),
+    const userDetails = {
       email: data.get("email"),
       password: data.get("password"),
-    });
+    };
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userDetails),
+      });
+
+      if (response.ok) {
+        console.log("User signed in successfully");
+        setServerError(false);
+        setServerErrorMessage("");
+         window.location.href = "/dashboard";
+      } else if (response.status === 404) {
+        setServerError(true);
+        setServerErrorMessage("Incorrect email or password.");
+      } else {
+        const errorData = await response.json();
+        const errorMessage =
+          errorData?.message || "An unknown error occurred. Please try again.";
+        setServerError(true);
+        setServerErrorMessage(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error signing in:", error);
+      setServerError(true);
+      setServerErrorMessage("Network error. Please try again later.");
+    }
   };
 
   return (
@@ -112,6 +152,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         sx={{ height: "100%" }}
       >
         <Card variant="outlined">
+          <Logo src="/logo.png" alt="Foundly Logo" />
           <Typography
             component="h1"
             variant="h4"
@@ -119,6 +160,11 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
           >
             Welcome to Foundly
           </Typography>
+          {serverError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {serverErrorMessage}
+            </Alert>
+          )}
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -136,7 +182,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                 variant="outlined"
                 error={emailError}
                 helperText={emailErrorMessage}
-                color={passwordError ? "error" : "primary"}
+                color={emailError ? "error" : "primary"}
               />
             </FormControl>
             <FormControl>
@@ -163,13 +209,13 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
               onClick={validateInputs}
               sx={{ top: ".5em" }}
             >
-              log in
+              Log In
             </Button>
           </Box>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography sx={{ textAlign: "center" }}>
-              Dont't have an account?{" "}
+              Don't have an account?{" "}
               <Link
                 href="/auth/signup/"
                 variant="body2"

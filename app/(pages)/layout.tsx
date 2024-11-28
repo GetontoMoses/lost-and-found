@@ -1,6 +1,10 @@
+"use client";
+
 import Box from "@mui/material/Box";
 import Footer from "./components/footer";
 import Navbar from "./components/navbar";
+import { useEffect } from "react";
+import connectToDatabase from "@/lib/mongo";
 
 export default function Layout({
   children,

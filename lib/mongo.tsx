@@ -1,6 +1,9 @@
+"use server";
+
 import mongoose from "mongoose";
 
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.NEXT_PUBLIC_MONGO_URI;
+console.log("MONGO_URI", MONGO_URI);
 
 if (!MONGO_URI) {
   throw new Error("Please define the MONGO_URI environment variable"); //ensure the URI exists in the .env
@@ -21,7 +24,7 @@ if (!cached) {
 }
 
 async function connectToDatabase() {
-  if (cached.conn) {
+  /*  if (cached.conn) {
     return cached.conn;
   }
   if (!cached.promise) {
@@ -30,7 +33,13 @@ async function connectToDatabase() {
       .then((mongoose) => mongoose);
   }
   cached.conn = await cached.promise;
-  return cached.conn;
+  return cached.conn; */
+  try {
+    await mongoose.connect(MONGO_URI as string);
+    console.log("Connected to the database");
+  } catch (error) {
+    console.error("Error connecting to the database:", error);
+  }
 }
 
 export default connectToDatabase;

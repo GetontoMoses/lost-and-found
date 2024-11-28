@@ -1,3 +1,5 @@
+"use server";
+
 import { NextResponse } from "next/server";
 import connectToDatabase from "../../../../lib/mongo";
 import Item from "../../../../models/items";
