@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, JSX } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -15,7 +15,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 
-// Item interface for type checking
 interface Item {
   id: string;
   name: string;
@@ -26,19 +25,17 @@ interface Item {
   claimed?: boolean;
 }
 
-// Admin Page Component
 const AdminPage = () => {
-  const [items, setItems] = useState<Item[]>([]); // State for all items
-  const [claimedItems, setClaimedItems] = useState<Item[]>([]); // State for claimed items
+  const [items, setItems] = useState<Item[]>([]);
+  const [claimedItems, setClaimedItems] = useState<Item[]>([]);
   const [newItem, setNewItem] = useState({
     name: "",
     description: "",
     location: "",
     imageUrl: "",
-    dateLost: dayjs().format("YYYY-MM-DD"), // Default to today's date
-  }); // State for the new item form
+    dateLost: dayjs().format("YYYY-MM-DD"),
+  });
 
-  // Fetch items and claimed items
   useEffect(() => {
     const fetchItems = async () => {
       const response = await fetch("/api/items/fetch");
@@ -50,23 +47,25 @@ const AdminPage = () => {
     fetchItems();
   }, []);
 
-  // Handle form input change
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setNewItem({ ...newItem, [e.target.name]: e.target.value });
   };
 
-  // Handle image selection
-  const handleImagePick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Convert image to base64
+  const handleImagePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const image = e.target.files[0];
-      const imageUrl = URL.createObjectURL(image); // Preview image locally
-      setNewItem({ ...newItem, imageUrl });
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setNewItem({ ...newItem, imageUrl: base64String });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // Add a new item
   const handleAddItem = async () => {
     const response = await fetch("/api/items/post", {
       method: "POST",
@@ -84,13 +83,12 @@ const AdminPage = () => {
         location: "",
         imageUrl: "",
         dateLost: dayjs().format("YYYY-MM-DD"),
-      }); // Clear the form
+      });
     } else {
       alert("Failed to add item.");
     }
   };
 
-  // Mark an item as claimed
   const handleMarkAsClaimed = async (id: string) => {
     const response = await fetch(`/api/items/${id}/claim`, { method: "PUT" });
 
@@ -108,14 +106,7 @@ const AdminPage = () => {
     }
   };
 
-  // Delete an item
   const handleDeleteItem = async (id: string) => {
-    console.log("Deleting item with ID:", id); // Debugging log
-    if (!id) {
-      alert("Item ID is missing");
-      return;
-    }
-
     const response = await fetch(`/api/items/${id}/delete`, {
       method: "DELETE",
     });
@@ -183,25 +174,13 @@ const AdminPage = () => {
           <Grid item xs={12} sm={6}>
             <Button variant="outlined" component="label" fullWidth>
               Upload Image
-              <input type="file" hidden onChange={handleImagePick} />
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Date Lost"
-                value={dayjs(newItem.dateLost)}
-                onChange={(date) =>
-                  setNewItem({
-                    ...newItem,
-                    dateLost: date?.format("YYYY-MM-DD") || "",
-                  })
-                }
-                TextFieldComponent={(params) => (
-                  <TextField fullWidth {...params} />
-                )}
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleImagePick}
               />
-            </LocalizationProvider>
+            </Button>
           </Grid>
         </Grid>
         <Button
